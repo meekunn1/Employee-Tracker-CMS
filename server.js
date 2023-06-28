@@ -1,6 +1,7 @@
 require('dotenv').config();
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
+const cTable = require('console.table');
 
 const db = mysql.createConnection(
     {
@@ -64,8 +65,22 @@ const op2ViewAllRole = () => {
 };
 
 const op3ViewAllEmployees = () => {
-    console.log('3');
-    return menu();
+    const sql = `SELECT e.id, e.first_name, e.last_name, role.title, salary, CONCAT(m.first_name, ' ', m.last_name) AS 'Manager'
+    FROM employee e
+    LEFT OUTER JOIN employee m ON e.manager_id = m.id
+    JOIN role ON e.role_id = role.id
+    ORDER BY id;`;
+    db.query(sql, (err, results) => {
+      if (err) {
+        console.log("Error: something went wrong");
+        return menu();
+      }  else{
+        console.log(`
+-----All Employees-----`);
+        console.table(results);
+        return menu();
+      }
+    });
 };
 
 const op4AddDepartment = () => {
