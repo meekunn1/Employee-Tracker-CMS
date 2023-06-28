@@ -56,6 +56,7 @@ const menu = () => {
 
 intro();
 
+//View All Department function
 const op1ViewAllDepartment = () => {
     const sql = `SELECT * FROM department
     ORDER BY id;`;
@@ -72,6 +73,7 @@ const op1ViewAllDepartment = () => {
     });
 };
 
+//View All Role function
 const op2ViewAllRole = () => {
     const sql = `SELECT r.id, r.title, r.salary, department.name
     FROM role r
@@ -90,6 +92,7 @@ const op2ViewAllRole = () => {
     });
 };
 
+//View All Employee function
 const op3ViewAllEmployees = () => {
     const sql = `SELECT e.id, e.first_name, e.last_name, role.title, salary, CONCAT(m.first_name, ' ', m.last_name) AS 'Manager'
     FROM employee e
@@ -129,6 +132,7 @@ const op7UpdateEmployeeRole = () => {
     return menu();
 };
 
+//Exit function
 const exit = () => {
     console.clear();
     console.log(`----------
