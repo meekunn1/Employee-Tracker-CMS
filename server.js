@@ -8,9 +8,9 @@ const db = mysql.createConnection(
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
-    },
-    console.log(`Connected to the database: ${process.env.DB_NAME}`)
+    database: process.env.DB_NAME,
+    }
+    // console.log(`Connected to the database: ${process.env.DB_NAME}`)
     );
 
 //starting command
@@ -111,16 +111,122 @@ const op3ViewAllEmployees = () => {
       }
     });
 };
-
+//Add department function
 const op4AddDepartment = () => {
-    console.log('4');
-    return menu();
+    inquirer.prompt([
+        {
+          type: 'text',
+          name: 'addDepartment',
+          message: 'Please enter a name for the new Department. (Leave blank to return to main menu.)',
+        }
+    ]).then(({addDepartment}) => {
+        if (!addDepartment) {
+            console.log('There was no input. Returning to main menu.');
+            return menu();
+        } else {
+        const sql = `INSERT INTO department (name) VALUES ("${addDepartment.trim()}");`;
+        db.query(sql, (err, results) => {
+            if (err) {
+                console.log("Error: something went wrong");
+                return menu();
+            } else {
+                console.log(
+`----------
+${addDepartment.trim()} have been added to Department database.
+----------`);
+                return menu();
+            }
+        })}
+    });
 };
-
+//add role function
 const op5AddRole = () => {
-    console.log('5');
-    return menu();
+    let name = ''
+    let salary = ''
+    // let department = ''
+    const listSql = `SELECT name, id AS value FROM department
+    ORDER BY id;`;
+    const list = [db.query(listSql, (err, results) => {
+        if (err) {
+            console.log("Error: something went wrong");
+            return menu();
+        } else {
+            console.log(results);
+            rollName();
+            return results
+        }
+    })]
+const rollName = () => {
+    return inquirer.prompt([
+        {
+          type: 'text',
+          name: 'addRoleName',
+          message: 'Please enter a name for the new Role.',
+        }
+    ])
+    .then(({addRoleName}) => {
+        if (!addRoleName) {
+            console.log('There was no input.');
+            return rollName();
+        } else {
+            name = addRoleName;
+            return rollSalary();}
+      })
+    };
+
+const rollSalary = () => {
+        return inquirer.prompt([
+            {
+              type: 'number',
+              name: 'addRoleSalary',
+              message: 'Please enter the salary for the new Role.',
+            },
+        ]).then(({addRoleSalary}) => {
+            if (!Number.isInteger(addRoleSalary)) {
+                console.log('Please enter an number.');
+                return rollSalary();
+            } else {
+                salary = addRoleSalary;
+                return connectDepartment();
+            }
+          });
+        };
+
+const connectDepartment = () => {
+        return inquirer.prompt([
+            {
+              type: 'list',
+              name: 'toDepartment',
+              message: 'Choose the Department for this Role.',
+              choices: list
+            },
+        ]).then(({toDepartment}) => {
+        const sql = `SELECT id FROM department WHERE name = ${toDepartment};`;
+        db.query(sql, (err, results) => {
+            if (err) {
+                console.log("Error: something went wrong");
+                return menu();
+            } else {
+                const buildSql = `INSERT INTO role (title, salary, department_id)
+                VALUES (${name}, ${salary}, ${results});`
+                db.query(buildSql, (err, results) => {
+                    if (err) {
+                        console.log("Error: something went wrong");
+                        return menu();
+                    } else {
+                        console.log(
+        `----------
+        ${name.trim()} have been added to Role database.
+        ----------`);
+                        return menu();
+                    }})
+            }})
+        });
+    }
 };
+        
+
+
 
 const op6AddEmployee = () => {
     console.log('6');
