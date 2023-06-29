@@ -144,18 +144,10 @@ const op5AddRole = () => {
     let name = ''
     let salary = ''
     // let department = ''
-    const listSql = `SELECT name, id AS value FROM department
+    const listSql = `SELECT name FROM department
     ORDER BY id;`;
-    const list = [db.query(listSql, (err, results) => {
-        if (err) {
-            console.log("Error: something went wrong");
-            return menu();
-        } else {
-            console.log(results);
-            rollName();
-            return results
-        }
-    })]
+    
+
 const rollName = () => {
     return inquirer.prompt([
         {
@@ -192,23 +184,24 @@ const rollSalary = () => {
           });
         };
 
-const connectDepartment = () => {
+const connectDepartment = async () => {
         return inquirer.prompt([
             {
               type: 'list',
               name: 'toDepartment',
               message: 'Choose the Department for this Role.',
-              choices: list
+              choices: await db.promise().query(listSql).then(([deptList]) => {return deptList})
             },
         ]).then(({toDepartment}) => {
-        const sql = `SELECT id FROM department WHERE name = ${toDepartment};`;
-        db.query(sql, (err, results) => {
+        const sqlDept = `SELECT id FROM department WHERE name = '${toDepartment}';`;
+        db.query(sqlDept, (err, results) => {
             if (err) {
                 console.log("Error: something went wrong");
                 return menu();
             } else {
+                console.log(results)
                 const buildSql = `INSERT INTO role (title, salary, department_id)
-                VALUES (${name}, ${salary}, ${results});`
+                VALUES (${name}, ${salary}, ${results.id});`
                 db.query(buildSql, (err, results) => {
                     if (err) {
                         console.log("Error: something went wrong");
@@ -223,6 +216,7 @@ const connectDepartment = () => {
             }})
         });
     }
+    rollName();
 };
         
 
