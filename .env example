@@ -1,0 +1,4 @@
+DB_HOST='localhost'
+DB_NAME='company_structure_db'
+DB_PASSWORD='enter mysql password here'
+DB_USER='enter mysql user here'
