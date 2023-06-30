@@ -43,7 +43,7 @@ const menu = () => {
             return op5AddRole();
         } else if (menu === '6) Add an Employee') {
             return op6AddEmployee();
-        } else if (menu === '7) Update ad Employee Role') {
+        } else if (menu === '7) Update an Employee Role') {
             return op7UpdateEmployeeRole()
         } else if (menu === '8) Exit') {
             return exit();
@@ -146,7 +146,6 @@ const op5AddRole = () => {
     let department = ''
     const listSql = `SELECT name FROM department
     ORDER BY id;`;
-    
 
 const rollName = () => {
     return inquirer.prompt([
@@ -157,11 +156,11 @@ const rollName = () => {
         }
     ])
     .then(({addRoleName}) => {
-        if (!addRoleName) {
+        if (!addRoleName.trim()) {
             console.log('There was no input.');
             return rollName();
         } else {
-            name = addRoleName;
+            name = addRoleName.trim();
             return rollSalary();}
       })
     };
@@ -223,13 +222,108 @@ ${name.trim()} have been added to Role database.
     }
 rollName();
 };
-        
 
-
-
+//Add employee function
 const op6AddEmployee = () => {
-    console.log('6');
-    return menu();
+    let eFirstName = '';
+    let eLastName = '';
+    let eRoleID = '';
+    let eManagerID = '';
+    const roleListSql = `SELECT title FROM role ORDER BY id;`;
+    const managerListSql = `SELECT id, first_name, last_name FROM employee ORDER BY id;`;
+    
+    const addFirstName = () => {
+    return inquirer.prompt([
+        {
+          type: 'text',
+          name: 'FirsttName',
+          message: 'Please enter the First Name of the Employee.',
+        }
+    ])
+    .then(({FirsttName}) => {
+        if (!FirsttName) {
+            console.log('There was no input.');
+            return addFirstName();
+        } else {
+            eFirstName = FirsttName.trim();
+            return addLastName();
+        }
+      })
+    };
+
+    const addLastName = () => {
+    return inquirer.prompt([
+        {
+          type: 'text',
+          name: 'LastName',
+          message: 'Please enter the Last Name of the Employee.',
+        }
+    ])
+    .then(({LastName}) => {
+        if (!LastName) {
+            console.log('There was no input.');
+            return addLastName();
+        } else {
+            eLastName = LastName.trim();
+            return connectRole();
+        }
+      })
+    };
+
+    const connectRole = async () => {
+        return inquirer.prompt([
+            {
+              type: 'list',
+              name: 'toRole',
+              message: 'What is the Role of this Employee?',
+              choices: await db.promise().query(roleListSql).then(([roleList]) => {return roleList.map((r) => { return r.title})})
+            },
+        ]).then(({toRole}) => {
+            const sqlRole = `SELECT id FROM role WHERE title = '${toRole}';`;
+        db.query(sqlRole, (err, results) => {
+            if (err) {
+                console.log("Error: something went wrong on sqlRole");
+                return menu();
+            } else {
+                eRoleID = results[0].id;
+                return connectManager();
+            };
+        });
+    });
+    }
+
+    const connectManager = async () => {
+        return inquirer.prompt([
+            {
+              type: 'list',
+              name: 'toManager',
+              message: 'Who will manage this Employee?',
+              choices: await db.promise().query(managerListSql).then(([maganerList]) => {return maganerList.map((r) => {return `${r.id} - ${r.first_name} ${r.last_name}`})})
+            },
+        ]).then(({toManager}) => {
+            console.log(toManager);
+            eManagerID = toManager.split('-')[0];
+            console.log(eManagerID);
+            return addEmployee();
+    });
+    }
+    
+const addEmployee = async () => {
+        const buildSql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${eFirstName}', '${eLastName}', ${eRoleID}, ${eManagerID});`
+        db.query(buildSql, (err, results) => {
+            if (err) {
+                console.log("Error: something went wrong on here");
+                return menu();
+            } else {
+                console.log(
+`----------
+${eFirstName} ${eLastName} have been added to Role database.
+----------`);
+                return menu();
+            };
+    });
+    }
+addFirstName();
 };
 
 const op7UpdateEmployeeRole = () => {

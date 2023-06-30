@@ -5,12 +5,12 @@ USE company_structure_db;
 
 CREATE TABLE department (
   id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(30) NOT NULL
+  name VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE role (
   id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  title VARCHAR(30) NOT NULL,
+  title VARCHAR(50) NOT NULL,
   salary DECIMAL,
   department_id INT,
   FOREIGN KEY (department_id)
