@@ -1,1 +1,3 @@
-SELECT id FROM department WHERE name = 'Administration';
+SELECT title 
+FROM role 
+ORDER BY id;
