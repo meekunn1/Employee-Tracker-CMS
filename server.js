@@ -143,7 +143,7 @@ ${addDepartment.trim()} have been added to Department database.
 const op5AddRole = () => {
     let name = ''
     let salary = ''
-    // let department = ''
+    let department = ''
     const listSql = `SELECT name FROM department
     ORDER BY id;`;
     
@@ -167,22 +167,23 @@ const rollName = () => {
     };
 
 const rollSalary = () => {
-        return inquirer.prompt([
-            {
-              type: 'number',
-              name: 'addRoleSalary',
-              message: 'Please enter the salary for the new Role.',
-            },
-        ]).then(({addRoleSalary}) => {
-            if (!Number.isInteger(addRoleSalary)) {
-                console.log('Please enter an number.');
-                return rollSalary();
-            } else {
-                salary = addRoleSalary;
-                return connectDepartment();
-            }
-          });
-        };
+    return inquirer.prompt([
+        {
+          type: 'number',
+          name: 'addRoleSalary',
+          message: 'Please enter the salary for the new Role.',
+        },
+    ])
+    .then(({addRoleSalary}) => {
+        if (!Number.isInteger(addRoleSalary)) {
+            console.log('Please enter an number.');
+            return rollSalary();
+        } else {
+            salary = addRoleSalary;
+            return connectDepartment();
+        }
+    });
+};
 
 const connectDepartment = async () => {
         return inquirer.prompt([
@@ -193,30 +194,34 @@ const connectDepartment = async () => {
               choices: await db.promise().query(listSql).then(([deptList]) => {return deptList})
             },
         ]).then(({toDepartment}) => {
-        const sqlDept = `SELECT id FROM department WHERE name = '${toDepartment}';`;
+            const sqlDept = `SELECT id FROM department WHERE name = '${toDepartment}';`;
         db.query(sqlDept, (err, results) => {
             if (err) {
-                console.log("Error: something went wrong");
+                console.log("Error: something went wrong on sqlDept");
                 return menu();
             } else {
-                console.log(results)
-                const buildSql = `INSERT INTO role (title, salary, department_id)
-                VALUES (${name}, ${salary}, ${results.id});`
-                db.query(buildSql, (err, results) => {
-                    if (err) {
-                        console.log("Error: something went wrong");
-                        return menu();
-                    } else {
-                        console.log(
-        `----------
-        ${name.trim()} have been added to Role database.
-        ----------`);
-                        return menu();
-                    }})
-            }})
+                department = results[0].id;
+                return addRoll();
+            };
         });
+    });
     }
-    rollName();
+const addRoll = async () => {
+        const buildSql = `INSERT INTO role (title, salary, department_id) VALUES ('${name}', ${salary}, ${department});`
+        db.query(buildSql, (err, results) => {
+            if (err) {
+                console.log("Error: something went wrong on buildSQL");
+                return menu();
+            } else {
+                console.log(
+`----------
+${name.trim()} have been added to Role database.
+----------`);
+                return menu();
+            };
+    });
+    }
+rollName();
 };
         
 
