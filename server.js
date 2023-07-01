@@ -80,7 +80,7 @@ What else would you like to do?`);
 
 //View All Role function
 const op2ViewAllRole = () => {
-    const sql = `SELECT r.id, r.title, r.salary, department.name
+    const sql = `SELECT r.id, r.title, r.salary, department.name AS 'department'
     FROM role r
     JOIN department ON r.department_id = department.id
     ORDER BY id;`;

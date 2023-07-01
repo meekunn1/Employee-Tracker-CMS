@@ -23,6 +23,9 @@ Please go to the directory of this app. You would first need to copy paste the .
 
 In the terminal at the server.js directory, enter "node server.js" to get the app started. The app will start off with main menu options. Please follow the prompts to perform the selected actions. Once finished, you can end the app by choosing the exit option and following its direction.
 
+Please go to my [googledrive video link](https://drive.google.com/file/d/1gNlp5sBgPZKf5RpKV4AIeQmqwsyUHKEw/view) for a video demonstration of this application.
+
+
 ## License
   
 [![license](https://img.shields.io/badge/License-MIT-green)](https://choosealicense.com/licenses/mit/)
