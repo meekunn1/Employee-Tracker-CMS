@@ -15,9 +15,11 @@ const db = mysql.createConnection(
 
 //starting command
 const intro = () => {
-    console.log('Welcome to Employee Manager');
-    console.log('Here, you can view and manipulate employee database.')
-    return menu()
+    console.clear();
+    console.log(`
+Welcome to Employee Manager`);
+    console.log('Here, you can view and manipulate employee database.');
+    return menu();
 };
 
 //intro prompt
@@ -68,6 +70,9 @@ const op1ViewAllDepartment = () => {
         console.log(`
 -----All Department-----`);
         console.table(results);
+        console.log(`-----End of Table-----
+        
+What else would you like to do?`);
         return menu();
       }
     });
@@ -87,6 +92,9 @@ const op2ViewAllRole = () => {
         console.log(`
 -----All Role-----`);
         console.table(results);
+        console.log(`-----End of Table-----
+
+What else would you like to do?`);
         return menu();
       }
     });
@@ -107,6 +115,9 @@ const op3ViewAllEmployees = () => {
         console.log(`
 -----All Employees-----`);
         console.table(results);
+        console.log(`-----End of Table-----
+        
+What else would you like to do?`);
         return menu();
       }
     });
@@ -132,7 +143,7 @@ const op4AddDepartment = () => {
             } else {
                 console.log(
 `----------
-${addDepartment.trim()} have been added to Department database.
+"${addDepartment.trim()}" have been added to Department database.
 ----------`);
                 return menu();
             }
@@ -214,8 +225,10 @@ const addRoll = async () => {
             } else {
                 console.log(
 `----------
-${name.trim()} have been added to Role database.
-----------`);
+"${name.trim()}" have been added to Role database.
+----------
+
+What else would you like to do?`);
                 return menu();
             };
     });
@@ -317,8 +330,10 @@ const addEmployee = async () => {
             } else {
                 console.log(
 `----------
-${eFirstName} ${eLastName} have been added to Role database.
-----------`);
+"${eFirstName} ${eLastName}" have been added to Employee database.
+----------
+
+What else would you like to do?`);
                 return menu();
             };
     });
