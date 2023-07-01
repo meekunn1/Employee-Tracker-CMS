@@ -29,7 +29,7 @@ const menu = () => {
             type: 'list',
             name: 'menu',
             message: 'Please choose from the following options.',
-            choices: ['1) View all Departments', '2) View all Roles', '3) View all Employees', '4) Add a Department', '5) Add a Role', '6) Add an Employee', '7) Update ad Employee Role', '8) Exit'],
+            choices: ['1) View all Departments', '2) View all Roles', '3) View all Employees', '4) Add a Department', '5) Add a Role', '6) Add an Employee', '7) Update an Employee Role', '8) Exit'],
         }
     ])
     .then(({menu}) => {
@@ -131,7 +131,7 @@ const op4AddDepartment = () => {
           message: 'Please enter a name for the new Department. (Leave blank to return to main menu.)',
         }
     ]).then(({addDepartment}) => {
-        if (!addDepartment) {
+        if (!addDepartment.trim()) {
             console.log('There was no input. Returning to main menu.');
             return menu();
         } else {
@@ -158,42 +158,42 @@ const op5AddRole = () => {
     const listSql = `SELECT name FROM department
     ORDER BY id;`;
 
-const rollName = () => {
-    return inquirer.prompt([
-        {
-          type: 'text',
-          name: 'addRoleName',
-          message: 'Please enter a name for the new Role.',
-        }
-    ])
-    .then(({addRoleName}) => {
-        if (!addRoleName.trim()) {
-            console.log('There was no input.');
-            return rollName();
-        } else {
-            name = addRoleName.trim();
-            return rollSalary();}
-      })
+    const rollName = () => {
+        return inquirer.prompt([
+            {
+            type: 'text',
+            name: 'addRoleName',
+            message: 'Please enter a name for the new Role. (Leave blank to return to main menu.)',
+            }
+        ])
+        .then(({addRoleName}) => {
+            if (!addRoleName.trim()) {
+                console.log('There was no input. Returning to main menu.');
+                return menu();
+            } else {
+                name = addRoleName.trim();
+                return rollSalary();}
+        });
     };
 
-const rollSalary = () => {
-    return inquirer.prompt([
-        {
-          type: 'number',
-          name: 'addRoleSalary',
-          message: 'Please enter the salary for the new Role.',
-        },
-    ])
-    .then(({addRoleSalary}) => {
-        if (!Number.isInteger(addRoleSalary)) {
-            console.log('Please enter an number.');
-            return rollSalary();
-        } else {
-            salary = addRoleSalary;
-            return connectDepartment();
-        }
-    });
-};
+    const rollSalary = () => {
+        return inquirer.prompt([
+            {
+            type: 'number',
+            name: 'addRoleSalary',
+            message: 'Please enter the salary for the new Role.',
+            },
+        ])
+        .then(({addRoleSalary}) => {
+            if (!Number.isInteger(addRoleSalary)) {
+                console.log('Please enter an number.');
+                return rollSalary();
+            } else {
+                salary = addRoleSalary;
+                return connectDepartment();
+            }
+        });
+    };
 
 const connectDepartment = async () => {
         return inquirer.prompt([
@@ -216,23 +216,24 @@ const connectDepartment = async () => {
         });
     });
     }
-const addRoll = async () => {
-        const buildSql = `INSERT INTO role (title, salary, department_id) VALUES ('${name}', ${salary}, ${department});`
-        db.query(buildSql, (err, results) => {
-            if (err) {
-                console.log("Error: something went wrong on buildSQL");
-                return menu();
-            } else {
-                console.log(
+
+    const addRoll = async () => {
+            const buildSql = `INSERT INTO role (title, salary, department_id) VALUES ('${name}', ${salary}, ${department});`
+            db.query(buildSql, (err, results) => {
+                if (err) {
+                    console.log("Error: something went wrong on buildSQL");
+                    return menu();
+                } else {
+                    console.log(
 `----------
 "${name.trim()}" have been added to Role database.
 ----------
 
 What else would you like to do?`);
-                return menu();
-            };
-    });
-    }
+                    return menu();
+                };
+        });
+        }
 rollName();
 };
 
@@ -321,16 +322,82 @@ const op6AddEmployee = () => {
     });
     }
     
-const addEmployee = async () => {
-        const buildSql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${eFirstName}', '${eLastName}', ${eRoleID}, ${eManagerID});`
-        db.query(buildSql, (err, results) => {
-            if (err) {
-                console.log("Error: something went wrong on here");
-                return menu();
-            } else {
-                console.log(
+    const addEmployee = async () => {
+            const buildSql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${eFirstName}', '${eLastName}', ${eRoleID}, ${eManagerID});`
+            db.query(buildSql, (err, results) => {
+                if (err) {
+                    console.log("Error: something went wrong on here");
+                    return menu();
+                } else {
+                    console.log(
 `----------
 "${eFirstName} ${eLastName}" have been added to Employee database.
+----------
+
+What else would you like to do?`);
+                    return menu();
+                };
+    });
+    }
+addFirstName();
+};
+
+//function to update the role of employee
+const op7UpdateEmployeeRole = () => {
+    let employeeID = '';
+    let newRoleID = '';
+    let employeeName = '';
+    const EmployeeListSQL = `SELECT id, first_name, last_name FROM employee ORDER BY id;`;
+    const roleListSql = `SELECT title FROM role ORDER BY id;`;
+    const chooseEmployee = async () => {
+        return inquirer.prompt([
+            {
+              type: 'list',
+              name: 'theEmployee',
+              message: 'Please choose who you would like to update.',
+              choices: await db.promise().query(EmployeeListSQL).then(([EmployeeList]) => {return EmployeeList.map((r) => {return `${r.id} - ${r.first_name} ${r.last_name}`})})
+            },
+        ]).then(({theEmployee}) => {
+            console.log(theEmployee);
+            employeeName = theEmployee
+            employeeID = theEmployee.split('-')[0];
+            console.log(employeeID);
+            return chooseRole();
+    });
+    }
+
+    const chooseRole = async () => {
+        return inquirer.prompt([
+            {
+              type: 'list',
+              name: 'theRole',
+              message: 'What is the new Role for this Employee?',
+              choices: await db.promise().query(roleListSql).then(([roleList]) => {return roleList.map((r) => { return r.title})})
+            },
+        ]).then(({theRole}) => {
+            const sqlRole = `SELECT id FROM role WHERE title = '${theRole}';`;
+        db.query(sqlRole, (err, results) => {
+            if (err) {
+                console.log("Error: something went wrong on sqlRole");
+                return menu();
+            } else {
+                newRoleID = results[0].id;
+                return updateEmployee();
+            };
+        });
+    });
+    }
+    
+    const updateEmployee = async () => {
+            const employeeUpdateSQL = `UPDATE employee SET role_id = ${newRoleID} WHERE id = ${employeeID}`
+            db.query(employeeUpdateSQL, (err, results) => {
+                if (err) {
+                    console.log("Error: something went wrong on here");
+                    return menu();
+                } else {
+                    console.log(
+`----------
+Role have been updated for "${employeeName}".
 ----------
 
 What else would you like to do?`);
@@ -338,13 +405,9 @@ What else would you like to do?`);
             };
     });
     }
-addFirstName();
+chooseEmployee();
 };
-
-const op7UpdateEmployeeRole = () => {
-    console.log('7');
-    return menu();
-};
+    
 
 //Exit function
 const exit = () => {
@@ -354,4 +417,4 @@ Exiting Employee Manager...
 
 Please input "ctrl + c" in terminal to close this app.
 ----------`);
-}
+};
